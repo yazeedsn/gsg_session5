@@ -34,3 +34,35 @@ print(f'min number of turns = {df_chess['turns'].min()}')
 df_chess = clean_chess(df_chess)
 print(df_chess)
 
+# Stage 3
+print('------------------------- Analytical Questions --------------------------')
+
+rates = df_chess.groupby(['winner']).size() / len(df_chess) * 100
+most_common_status = df_chess.groupby(['victory_status']).size().idxmax()
+highest_avg_terms = df_chess.groupby(['victory_status'])['turns'].mean().idxmax()
+popular_family_black = df_chess[df_chess['winner'] == 'Black'].groupby('opening_family').size().idxmax()
+popular_family_white = df_chess[df_chess['winner'] == 'White'].groupby('opening_family').size().idxmax()
+rated_games_white_win_rate = df_chess[df_chess['rated']].groupby('winner').size()['White'] / len(df_chess[df_chess['rated']]) * 100
+unrated_games_white_win_rate = df_chess[~df_chess['rated']].groupby('winner').size()['White'] / len(df_chess[~df_chess['rated']]) * 100
+
+# plot hist to decide turns class boundaries
+df_chess.hist(column='turns', bins=50)
+plt.show()
+
+def classify(x: int) -> str:
+    if x <= 30: return 'Short'
+    elif x <= 70: return 'Medium'
+    else: return 'Long'
+
+df_chess['duration'] = df_chess['turns'].apply(classify)
+durations_rate = df_chess.groupby(['duration']).size() / len(df_chess) * 100
+
+
+print(f"The rate for Draw, White, or Black is {rates}")
+print(f'Most games end with {most_common_status}')
+print(f"{highest_avg_terms} has the highest avarge number of turns")
+print(f"The most popular family when Black wins is {popular_family_black}")
+print(f"The most popular family when White wins is {popular_family_white}")
+print(f"Rated games White win rate {rated_games_white_win_rate}")
+print(f"Unrated games White win rate {unrated_games_white_win_rate}")
+print(f"% of Duration classes {durations_rate}")
