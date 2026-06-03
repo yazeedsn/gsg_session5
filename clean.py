@@ -9,3 +9,4 @@ def clean_chess(df: pd.DataFrame) -> pd.DataFrame:
     assert df['rating_diff'].notna().all()
     assert df.duplicated().sum() == 0
     return df
+

@@ -1,6 +1,6 @@
 from load import load_data
 from clean import clean_chess
-
+import pandas as pd
 import matplotlib.pyplot as plt
 import os 
 
@@ -46,8 +46,8 @@ rated_games_white_win_rate = df_chess[df_chess['rated']].groupby('winner').size(
 unrated_games_white_win_rate = df_chess[~df_chess['rated']].groupby('winner').size()['White'] / len(df_chess[~df_chess['rated']]) * 100
 
 # plot hist to decide turns class boundaries
-df_chess.hist(column='turns', bins=50)
-plt.show()
+# df_chess.hist(column='turns', bins=50)
+# plt.show()
 
 def classify(x: int) -> str:
     if x <= 30: return 'Short'
@@ -66,3 +66,55 @@ print(f"The most popular family when White wins is {popular_family_white}")
 print(f"Rated games White win rate {rated_games_white_win_rate}")
 print(f"Unrated games White win rate {unrated_games_white_win_rate}")
 print(f"% of Duration classes {durations_rate}")
+
+#Stage 4
+print(df_players.head())
+print(df_players.info())
+
+df_merged = pd.merge(
+    df_chess[['game_id', 'white_id', 'white_rating', 'winner']],
+    df_players.rename(columns={'username': 'white_id'}),
+    on= 'white_id',
+)
+print(df_merged.columns)
+print(df_merged.head())
+num_players_unregistered = len(df_chess['white_id'].unique()) - len(df_merged['white_id'].unique())
+
+countries_before_cleaning = df_merged['country'].unique()
+country_map = {
+    'US': 'United States',
+    'USA': 'United States',
+    'united states': 'United States',
+    'RUS': 'Russia',
+    'russian federation': 'Russia',
+    'UA': 'Ukraine',
+    'UK': 'United Kingdom',
+    'united kingdom': 'United Kingdom',
+    'GB': 'United Kingdom',
+    'BRA': 'Brazil',
+    'brazil': 'Brazil',
+    'PL': 'Poland',
+    'poland': 'Poland',
+    'france': 'France',
+    'FR': 'France',
+    'DE': 'Germany',
+    'Deutschland': 'Germany',
+    'IN': 'India',
+    'ES': 'Spain'
+    }
+
+
+print(f'# white players without a registery: {num_players_unregistered}')
+
+df_merged['country'] = df_merged['country'].map(country_map).fillna(df_merged['country'])
+print(f"# countries after cleaning: {df_merged['country'].dropna().unique().size}")
+
+
+
+df_chess.groupby('winner').size().plot(kind='bar')
+os.makedirs('output', exist_ok=True)
+plt.savefig('output/wins_by_color.png')
+plt.show()
+
+df_chess[df_chess['rated']].plot(kind='scatter', x='white_rating', y='turns')
+plt.show()
