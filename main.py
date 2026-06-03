@@ -1,4 +1,7 @@
 from load import load_data
+from clean import clean_chess
+
+import matplotlib.pyplot as plt
 import os 
 
 # meta data
@@ -25,3 +28,9 @@ print(f'# duplicated move sequence = {df_chess['moves'].duplicated().sum()}')
 print(f'% missing opening_response = {100*df_chess['opening_response'].isna().sum() / len(df_chess['opening_response'])}')
 print(f'% missing opening_variation = {100*df_chess['opening_variation'].isna().sum() / len(df_chess['opening_variation'])}')
 print(f'min number of turns = {df_chess['turns'].min()}')
+
+
+# Cleaning
+df_chess = clean_chess(df_chess)
+print(df_chess)
+
